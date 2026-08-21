@@ -377,21 +377,23 @@
 <section id="contacto">
     <h2>Contacto</h2>
     <form id="contactForm">
-        <div class="form-group">
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" name="from_name" required placeholder="Tu nombre">
-        </div>
-        <div class="form-group">
-            <label for="email">Correo electrónico:</label>
-            <input type="email" id="email" name="from_email" required placeholder="tu@correo.com">
-        </div>
-        <div class="form-group">
-            <label for="mensaje">Mensaje:</label>
-            <textarea id="mensaje" name="message" rows="4" required placeholder="Escribe tu mensaje..."></textarea>
-        </div>
-        <button type="submit" id="btnEnviar">Enviar Mensaje</button>
-    </form>
-    
+    <div class="form-group">
+        <label for="nombre">Nombre:</label>
+        <!-- name="from_name" coincide con {{from_name}} -->
+        <input type="text" id="nombre" name="from_name" required placeholder="Tu nombre">
+    </div>
+    <div class="form-group">
+        <label for="email">Correo electrónico:</label>
+        <!-- name="from_email" coincide con {{from_email}} -->
+        <input type="email" id="email" name="from_email" required placeholder="tu@correo.com">
+    </div>
+    <div class="form-group">
+        <label for="mensaje">Mensaje:</label>
+        <!-- name="message" coincide con {{message}} -->
+        <textarea id="mensaje" name="message" rows="4" required placeholder="Escribe tu mensaje..."></textarea>
+    </div>
+    <button type="submit" id="btnEnviar">Enviar Mensaje</button>
+</form>    
     <p id="formStatus" style="display:none; font-weight: bold; margin-top: 15px;"></p>
 </section>
 
@@ -403,38 +405,41 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
     const btn = document.getElementById('btnEnviar');
     const statusText = document.getElementById('formStatus');
     
-    // Cambiar estado del botón mientras procesa
     btn.innerText = 'Enviando...';
     btn.disabled = true;
 
-    // Tus credenciales configuradas
     const serviceID = 'service_2wao0ll';
-    const templateNotificacion = 'template_n0l5ftw'; // Correo para ti
-    const templateCliente = 'template_t117m29';      // Respuesta automática al usuario
+    const templateNotificacion = 'template_n0l5ftw'; // Notificación para ti
+    const templateCliente = 'template_t117m29';      // Confirmación para el cliente
 
-    // Paso A: Enviar la notificación a tu correo personal/académico
+    // Capturar los valores del formulario en un objeto
+    const templateParams = {
+        from_name: this.from_name.value,
+        from_email: this.from_email.value,
+        message: this.message.value
+    };
+
+    // 1. Enviar notificación a tu correo usando el formulario completo
     emailjs.sendForm(serviceID, templateNotificacion, this)
         .then(() => {
-            // Paso B: Una vez enviado el primero, enviar la confirmación al cliente
-            return emailjs.sendForm(serviceID, templateCliente, this);
+            // 2. Enviar la respuesta al cliente pasando los datos directamente
+            return emailjs.send(serviceID, templateCliente, templateParams);
         })
         .then(() => {
-            // Éxito en ambos envíos
             btn.innerText = 'Enviar Mensaje';
             btn.disabled = false;
             statusText.style.display = 'block';
             statusText.style.color = 'green';
-            statusText.innerText = '¡El correo se ha enviado con éxito y se envió una confirmación al destinatario!';
+            statusText.innerText = '¡El correo se ha enviado con éxito y se envió la confirmación con la copia del mensaje al cliente!';
             document.getElementById('contactForm').reset();
         })
         .catch((error) => {
-            // Error en cualquiera de los dos pasos
             btn.innerText = 'Enviar Mensaje';
             btn.disabled = false;
             statusText.style.display = 'block';
             statusText.style.color = 'red';
-            statusText.innerText = 'Hubo un error al enviar el mensaje. Revisa la consola para más detalle.';
-            console.error('Error en EmailJS:', error);
+            statusText.innerText = 'Hubo un error al procesar el envío. Revisa la consola para más detalle.';
+            console.error('Error EmailJS:', error);
         });
 });
 </script>
