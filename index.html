@@ -363,32 +363,76 @@
         <li><strong>Control de Versiones:</strong> Git / GitHub Repository.</li>
       </ul>
     </article>
+    <!-- Cargar la librería oficial de EmailJS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-    <article class="card" id="contacto">
-      <h2>04 // Terminal de Contacto</h2>
-      <form id="contactForm">
+<script type="text/javascript">
+   (function(){
+      // Sustituye con tu Public Key de EmailJS
+      emailjs.init("xwy40_VRWSA_95aHX");
+   })();
+</script>
+
+<!-- 5. Formulario de contacto -->
+<section id="contacto">
+    <h2>Contacto</h2>
+    <form id="contactForm">
         <div class="form-group">
-          <label for="nombre">> REMITENTE:</label>
-          <input type="text" id="nombre" name="nombre" required placeholder="Ej. Mtro. Servando López">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="from_name" required placeholder="Tu nombre">
         </div>
         <div class="form-group">
-          <label for="email">> CORREO ELECTRÓNICO:</label>
-          <input type="email" id="email" name="email" required placeholder="correo@ejemplo.com">
+            <label for="email">Correo electrónico:</label>
+            <input type="email" id="email" name="from_email" required placeholder="tu@correo.com">
         </div>
         <div class="form-group">
-          <label for="mensaje">> MENSAJE CIFRADO:</label>
-          <textarea id="mensaje" name="mensaje" rows="3" required placeholder="Escribe tu mensaje..."></textarea>
+            <label for="mensaje">Mensaje:</label>
+            <textarea id="mensaje" name="message" rows="4" required placeholder="Escribe tu mensaje..."></textarea>
         </div>
-        <button type="submit" class="btn">[ TRANSMITIR MENSAJE ]</button>
-      </form>
+        <button type="submit" id="btnEnviar">Enviar Mensaje</button>
+    </form>
+    
+    <p id="formStatus" style="display:none; font-weight: bold; margin-top: 15px;"></p>
+</section>
 
-      <div id="formStatus">
-        <p><strong>[RESPUESTA AUTOMÁTICA DEL SISTEMA]</strong></p>
-        <p>Mensaje recibido con éxito. Se ha generado una confirmación automática para el cliente.</p>
-      </div>
-    </article>
+<script>
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-  </div>
+    const btn = document.getElementById('btnEnviar');
+    const statusText = document.getElementById('formStatus');
+    
+    btn.innerText = 'Enviando...';
+    btn.disabled = true;
+
+    const serviceID = 'service_2wao0ll';
+    const templateNotificacion = 'template_n0l5ftw';
+    const templateCliente = 'template_t117m29';
+
+    // 1. Enviar correo de notificación a tu cuenta
+    emailjs.sendForm(serviceID, templateNotificacion, this)
+        .then(() => {
+            // 2. Enviar respuesta automática al cliente
+            return emailjs.sendForm(serviceID, templateCliente, this);
+        })
+        .then(() => {
+            btn.innerText = 'Enviar Mensaje';
+            btn.disabled = false;
+            statusText.style.display = 'block';
+            statusText.style.color = 'green';
+            statusText.innerText = '¡El correo ha sido enviado exitosamente y se ha mandado una confirmación al cliente!';
+            document.getElementById('contactForm').reset();
+        })
+        .catch((error) => {
+            btn.innerText = 'Enviar Mensaje';
+            btn.disabled = false;
+            statusText.style.display = 'block';
+            statusText.style.color = 'red';
+            statusText.innerText = 'Hubo un error al enviar el correo. Por favor intenta de nuevo.';
+            console.error('Error EmailJS:', error);
+        });
+});
+</script>
 
   <footer>
     <p><span style="color: var(--neon-cyan);">ESTADO DEL SISTEMA: HTTPS SEGURO (CERTIFICADO SSL ACTIVO)</span></p>
